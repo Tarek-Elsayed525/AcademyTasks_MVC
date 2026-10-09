@@ -1,0 +1,125 @@
+﻿@model AcademyTasks.Models.TaskItem
+
+@{
+    ViewData["Title"] = "Update Task";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg border-0 rounded-4 p-4 bg-white bg-opacity-95">
+            <div class="card-body">
+
+                <!-- عنوان الصفحة -->
+                <h2 class="fw-bold text-dark mb-4">Update Task</h2>
+
+                <!-- الفورم مع enctype لرفع الملفات والـ method="post" -->
+                <form asp-action="Update" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- حقل مخفي للـ ID لكي تعرف القاعدة أي تاسك يتم تعديله -->
+                    <input type="hidden" asp-for="Id" />
+                    <!-- حقل مخفي للـ Logo للحفاظ عليه في الموديل -->
+                    <input type="hidden" asp-for="Logo" />
+
+                    <!-- حقل العنوان (Title) -->
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-semibold">Title</label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter task title..." />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <!-- حقل الوصف (Description) -->
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter task description..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <!-- حقل الموعد النهائي (Deadline) -->
+                    <div class="mb-3">
+                        <label asp-for="DeadLine" class="form-label fw-semibold">Deadline</label>
+                        <input asp-for="DeadLine" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="DeadLine" class="text-danger"></span>
+                    </div>
+
+                    <!-- حقل رفع الملف مع id ومعاينة الصورة وعرض القديمة -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Task Image / File</label>
+
+                        @if (!string.IsNullOrEmpty(Model?.Logo))
+                        {
+                            <!-- الحاوية التي تحتوي على الصورة القديمة وزر التنزيل -->
+                            <div id="currentImageContainer" class="mb-3 p-3 bg-light rounded border text-center">
+                                <h6 class="text-muted mb-2">Current Image:</h6>
+                                <!-- عرض الصورة القديمة مباشرة -->
+                                <img src="@Url.Content("~/Admin/File/" + Model.Logo)" alt="Current Task Image"
+                                     class="rounded shadow-sm border" style="max-height: 250px; max-width: 100%; object-fit: contain;" />
+                                <div class="mt-2">
+                                    <a href="~/Admin/File/@Model.Logo" target="_blank" class="btn btn-sm btn-outline-success">
+                                        Open / Download File
+                                    </a>
+                                    <span class="text-muted small d-block mt-1">(@Model.Logo)</span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mb-3 text-muted small alert alert-info">No file currently attached.</div>
+                        }
+
+                        <!-- حقل تحميل الملف الجديد -->
+                        <label class="form-label fw-semibold mt-2">Upload New Image / File (Optional)</label>
+                        <!-- تم إضافة id="fileInput" هنا -->
+                        <input type="file" name="formFile" id="fileInput" class="form-control" accept="image/*" />
+                        <div class="form-text text-muted">اترك هذا الحقل فارغاً إذا كنت لا تريد تغيير الملف الحالي.</div>
+
+                        <!-- مكان ظهور معاينة الصورة الجديدة المختارة (مخفي افتراضياً) -->
+                        <div class="mt-3 text-center">
+                            <img id="newImagePreview" src="#" alt="New Image Preview"
+                                 class="rounded shadow-sm border" style="max-height: 250px; max-width: 100%; object-fit: contain; display: none;" />
+                        </div>
+                    </div>
+
+                    <!-- أزرار التحكم (Save Changes & Back to List) -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Back to List</a>
+                        <button type="submit" class="btn btn-primary px-5 fw-semibold shadow-sm">Save Changes</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!-- سكريبت معاينة الصورة الجديدة وإخفاء القديمة -->
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const newPreview = document.getElementById('newImagePreview');
+            const currentContainer = document.getElementById('currentImageContainer');
+
+            if (file) {
+                // إنشاء URL للكائن وعرض المعاينة الجديدة
+                newPreview.src = URL.createObjectURL(file);
+                newPreview.style.display = 'block';
+
+                // إخفاء الحاوية القديمة
+                if (currentContainer) {
+                    currentContainer.style.display = 'none';
+                }
+            } else {
+                // في حال تم إلغاء الاختيار، إعادة إظهار الصورة القديمة (إن وجدت) وإخفاء المعاينة الجديدة
+                newPreview.src = '#';
+                newPreview.style.display = 'none';
+                if (currentContainer) {
+                    currentContainer.style.display = 'block';
+                }
+            }
+        });
+    </script>

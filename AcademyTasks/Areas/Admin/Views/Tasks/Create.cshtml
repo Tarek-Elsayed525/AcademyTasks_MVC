@@ -1,0 +1,81 @@
+﻿@model AcademyTasks.Models.TaskItem
+
+@{
+    ViewData["Title"] = "Add New Task";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg border-0 rounded-4 p-4 bg-white bg-opacity-95">
+            <div class="card-body">
+
+                <!-- عنوان الصفحة -->
+                <h2 class="fw-bold text-dark mb-4">Add New Task</h2>
+
+                <!-- الفورم مع إعدادات رفع الملفات enctype والـ method="post" -->
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- حقل العنوان (Title) -->
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-semibold">Title</label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter task title..." />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <!-- حقل الوصف (Description) -->
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter task description..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <!-- حقل الموعد النهائي (Deadline) -->
+                    <div class="mb-3">
+                        <label asp-for="DeadLine" class="form-label fw-semibold">Deadline</label>
+                        <input asp-for="DeadLine" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="DeadLine" class="text-danger"></span>
+                    </div>
+
+                    <!-- حقل رفع الملف مع id ومعاينة الصورة -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Task File / Attachment</label>
+                        <!-- تم إضافة id="fileInput" هنا -->
+                        <input type="file" name="formFile" id="fileInput" class="form-control" accept="image/*" />
+                        <div class="form-text text-muted">Upload a file or attachment for this task (Optional).</div>
+
+                        <!-- عنصر عرض المعاينة (مهم جداً ليظهر تحت الحقل) -->
+                        <div class="mt-3">
+                            <img id="imagePreview" src="#" alt="Image Preview" class="rounded shadow-sm border" style="max-height: 200px; max-width: 100%; display: none;" />
+                        </div>
+                    </div>
+
+                    <!-- أزرار التحكم (Save & Back to List) -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Back to List</a>
+                        <button type="submit" class="btn btn-primary px-5 fw-semibold shadow-sm">Save</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <!-- سكريبت معاينة الصورة -->
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+            }
+        });
+    </script>

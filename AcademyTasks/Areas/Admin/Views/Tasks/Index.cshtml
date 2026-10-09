@@ -1,0 +1,160 @@
+﻿@model IEnumerable<AcademyTasks.Models.TaskItem>
+
+@{
+    ViewData["Title"] = "TodoItem List";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+
+    string searchDate = ViewBag.SearchDate ?? Context.Request.Query["searchDate"];
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-11">
+        <div class="card shadow-lg border-0 rounded-4 p-4 bg-white bg-opacity-95">
+            <div class="card-body">
+
+                <!-- Page Title -->
+                <h2 class="fw-bold text-dark mb-4">TodoItem List</h2>
+
+                <!-- Action Bar (Add Button & Date Search) -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                    <a asp-action="Create" class="btn btn-primary px-3 py-2 fw-semibold shadow-sm">
+                        Add New Task
+                    </a>
+
+                    <form asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+                        <!-- حقل البحث بالتاريخ -->
+                        <input type="date" name="searchDate" value="@searchDate" class="form-control" />
+                        <button type="submit" class="btn btn-primary px-4">Search</button>
+
+                        <!-- زر Reset يظهر فوراً بمجرد إتمام البحث حتى لو كانت النتيجة فارغة أو null -->
+                        @if (!string.IsNullOrEmpty(searchDate))
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary px-3">Reset</a>
+                        }
+                    </form>
+                </div>
+
+                <!-- Tasks Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Title</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Deadline</th>
+                                <th scope="col">File</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var task in Model)
+                                {
+                                    bool isExpired = task.DeadLine < DateTime.Now;
+                                    string deadlineStyle = isExpired ? "background-color: #f8d7da;" : "";
+
+                                    <tr>
+                                        <td class="fw-semibold">@task.Title</td>
+                                        <td class="text-muted">@task.Description</td>
+                                        <td style="@deadlineStyle" class="rounded px-2">@task.DeadLine.ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(task.Logo))
+                                            {
+                                                <!-- رابط التحميل موجه للمسار الصحيح مع خاصية download -->
+                                                <a href="~/Admin/File/@task.Logo" class="btn btn-success btn-sm px-3" download>Download</a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">No file</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <!-- زر التعديل (Update) -->
+                                                <a asp-action="Update" asp-route-id="@task.Id" class="btn btn-warning btn-sm text-dark fw-semibold px-3">Edit</a>
+
+                                                <!-- زر الحذف مع SweetAlert -->
+                                                <form asp-action="Delete" asp-route-id="@task.Id" method="post" style="display:inline;">
+                                                    <button type="button" class="btn btn-danger btn-sm px-3 delete-btn">Delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">لا توجد مهام مسجلة مطابقة للبحث حالياً.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Navigation -->
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <!-- زر السابق -->
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-searchDate="@searchDate">Previous</a>
+                            </li>
+
+                            <!-- أرقام الصفحات -->
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                <li class="page-item @(currentPage == i ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchDate="@searchDate">@i</a>
+                                </li>
+                            }
+
+                            <!-- زر التالي -->
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-searchDate="@searchDate">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- استدعاء مكتبة SweetAlert2 من الـ CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('delete-btn')) {
+                event.preventDefault();
+                var form = event.target.closest('form');
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "Your file has been deleted.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            form.submit(); // تنفيذ الحذف الفعلي وإرسال الطلب للكنترولر
+                        });
+                    }
+                });
+            }
+        });
+    </script>

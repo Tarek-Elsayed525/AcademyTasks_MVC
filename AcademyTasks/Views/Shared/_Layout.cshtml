@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AcademyTasks</title>
+    <script type="importmap"></script>
+    <link href="~/student/styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- FontAwesome الأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+            body {
+                background-image: url('/student/img/bg-masthead.jpg');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-position: center;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            /* تكبير وتنسيق الهيدر العلوي ليكون بارزاً وأنيقاً */
+            .sb-topnav {
+                min-height: 75px;
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            /* حاوية المحتوى الرئيسي */
+            .content-wrapper {
+                flex: 1;
+            }
+
+            /* تنسيق الفوتر الجديد والمنسق */
+            .custom-footer {
+                background-color: rgba(33, 37, 41, 0.95);
+                color: #ced4da;
+                padding: 1.5rem 0;
+                margin-top: auto;
+                border-top: 1px solid rgba(255, 255, 255, 0.15);
+            }
+
+                .custom-footer a {
+                    color: #ffffff;
+                    text-decoration: none;
+                    transition: color 0.2s;
+                }
+
+                    .custom-footer a:hover {
+                        color: #0d6efd;
+                    }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3 fw-bold fs-4" asp-area="Student" asp-controller="Home" asp-action="Index">
+                <i class="fas fa-tasks me-2 text-primary"></i> AcademyTasks
+            </a>
+
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0 text-white" id="sidebarToggle" href="#!">
+                <i class="fas fa-bars fa-lg"></i>
+            </button>
+
+            <!-- Navbar Search-->
+            <form asp-area="Student" asp-controller="Home" asp-action="Index" method="get" class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                <div class="input-group">
+                    <input class="form-control" type="text" name="searchQuery" value="@Context.Request.Query["searchQuery"]" placeholder="ابحث عن مهمة..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                    <button class="btn btn-primary" id="btnNavbarSearch" type="submit"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+
+            
+            
+        </nav>
+    </header>
+
+    <div class="container content-wrapper py-4">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- الفوتر الجديد والمنسق -->
+    <footer class="custom-footer text-center">
+        <div class="container">
+            <p class="mb-1 fw-semibold text-light">&copy; 2026 - AcademyTasks. جميع الحقوق محفوظة.</p>
+            <div class="small">
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">سياسة الخصوصية</a>
+                <span class="text-muted mx-2">|</span>
+                <span class="text-muted">نظام إدارة المهام للطلاب</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/student/scripts.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

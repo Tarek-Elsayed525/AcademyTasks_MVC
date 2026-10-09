@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+   
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- البطاقة البيضاء الكبيرة بتصميم Glassmorphic مشابه للصورة -->
+        <div class="card shadow-lg border-0 rounded-4 p-5 bg-white bg-opacity-95 text-center">
+            <div class="card-body px-4">
+                
+                <!-- العنوان الرئيسي -->
+                <h1 class="display-5 fw-bold text-dark mb-3">Welcome to ToDoListApp</h1>
+                
+                <p class="text-muted lead mb-4" style="max-width: 700px; margin: 0 auto;">
+                    Organize your tasks, manage deadlines, and track your progress effortlessly. Our app helps you stay productive and focused every day.
+                </p>
+
+                <!-- زرار الانتقال لقائمة المهام (Index) -->
+                <div class="mb-5">
+                    <a asp-area="Admin" asp-controller="Tasks" asp-action="Index" class="btn btn-primary btn-lg px-5 py-3 fw-semibold shadow rounded-pill" style="background: linear-gradient(135deg, #0d6efd 0%, #6f42c1 100%); border: none;">
+                        View Your Tasks
+                    </a>
+                </div>
+
+                <hr class="my-4 text-muted opacity-25" />
+
+                <!-- مميزات النظام (مماثلة للصورة) -->
+                <div class="text-start mt-4 px-md-4">
+                    <div class="mb-3">
+                        <strong class="text-dark">Why use ToDoListApp?</strong> 
+                        <span class="text-muted">Because keeping track of your daily tasks shouldn't be a hassle. With our clean and simple interface, you can add, edit, and delete tasks with ease.</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong class="text-dark">Stay on top of deadlines:</strong> 
+                        <span class="text-muted">The app highlights urgent tasks so you never miss important deadlines. You can filter by date and quickly see what's due soon.</span>
+                    </div>
+                    <div class="mb-0">
+                        <strong class="text-dark">File attachments:</strong> 
+                        <span class="text-muted">Upload files to your tasks and access them directly from the app. Everything is organized in one place for maximum efficiency.</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

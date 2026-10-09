@@ -1,0 +1,164 @@
+﻿@model IEnumerable<AcademyTasks.Models.TaskItem>
+
+@{
+    ViewData["Title"] = "قائمة المهام";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    string searchQuery = ViewBag.SearchQuery;
+}
+
+<div class="container-fluid px-4 py-3">
+    <!-- Page Header (Centered) -->
+    <div class="mb-4 text-center">
+        <h1 class="h3 mb-0 text-gray-800 fw-bold">قائمة المهام (My Tasks)</h1>
+        <p class="text-muted small mt-1">تابع مهامك ومواعيد التسليم الخاصة بك بدقة</p>
+
+        @if (!string.IsNullOrEmpty(searchQuery))
+        {
+            <div class="mt-2">
+                <span class="badge bg-info text-dark">نتائج البحث عن: "@searchQuery"</span>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary ms-2">إلغاء البحث</a>
+            </div>
+        }
+    </div>
+
+    <!-- Tasks Grid Row -->
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var task in Model)
+            {
+                // التحقق مما إذا كان موعد التسليم قد انتهى
+                bool isExpired = task.DeadLine < DateTime.Now;
+
+                // تخصيص الألوان بناءً على الحالة
+                string borderClass = isExpired ? "border-start border-danger border-4" : "border-start border-success border-4";
+                string badgeClass = isExpired ? "bg-danger" : "bg-success";
+                string statusText = isExpired ? "منتهية (Expired)" : "نشطة (Active)";
+
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card shadow-sm h-100 @borderClass py-2 task-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <!-- معالجة شكل الـ Logo أو الملف بطريقة ذكية واحترافية -->
+                                @if (!string.IsNullOrEmpty(task.Logo))
+                                {
+                                    string extension = System.IO.Path.GetExtension(task.Logo).ToLower();
+
+                                    @if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif" || extension == ".webp")
+                                    {
+                                        <!-- لو الملف صورة، نعرضها كصورة مصغرة -->
+                                        <div class="task-img-preview">
+                                            <img src="~/images/@task.Logo" alt="Task Image" class="rounded border" style="width: 45px; height: 45px; object-fit: cover;" />
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <!-- لو الملف مستند، نعرض أيقونة احترافية حسب الامتداد -->
+                                        string iconClass = extension switch
+                                        {
+                                            ".pdf" => "fa-file-pdf text-danger",
+                                            ".doc" or ".docx" => "fa-file-word text-primary",
+                                            ".xls" or ".xlsx" => "fa-file-excel text-success",
+                                            ".ppt" or ".pptx" => "fa-file-powerpoint text-warning",
+                                            _ => "fa-file-alt text-secondary"
+                                        };
+
+                                        <div class="d-flex align-items-center bg-light px-2 py-1 rounded border">
+                                            <i class="fas @iconClass fa-lg me-1"></i>
+                                            <span class="small text-muted text-truncate" style="max-width: 100px;" title="@task.Logo">@task.Logo</span>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <span></span>
+                                }
+
+                                <!-- حالة التاسك (نشطة أو منتهية) -->
+                                <span class="badge @badgeClass px-2 py-1">@statusText</span>
+                            </div>
+
+                            <!-- عنوان التاسك -->
+                            <h5 class="card-title fw-bold text-dark mt-3 mb-2">@task.Title</h5>
+
+                            <!-- الوصف -->
+                            <p class="card-text text-muted small mb-4" style="min-height: 40px;">
+                                @(string.IsNullOrEmpty(task.Description) ? "لا يوجد وصف لهذه المهمة." : task.Description)
+                            </p>
+
+                            <hr class="text-muted opacity-25 my-2" />
+
+                            <!-- الموعد النهائي (Deadline) - عرض فقط بدون أزرار -->
+                            <div class="d-flex align-items-center mt-3">
+                                <span class="text-secondary small fw-bold">
+                                    <i class="far fa-clock text-primary me-1"></i> @task.DeadLine.ToString("yyyy-MM-dd | hh:mm tt")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <!-- رسالة تنبيهية إذا كانت القائمة فارغة أو لا توجد نتائج للبحث -->
+            <div class="col-12">
+                <div class="alert alert-light border text-center py-5 shadow-sm bg-white bg-opacity-75" role="alert">
+                    <div class="mb-3">
+                        <i class="fas fa-tasks fa-3x text-muted opacity-50"></i>
+                    </div>
+                    <h4 class="text-secondary fw-bold">لا توجد أي مهام مطابقة للبحث أو مسجلة حالياً!</h4>
+                    <p class="text-muted small">جرب البحث بكلمة أخرى أو أضف مهام جديدة.</p>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination Navigation (أزرار التنقل بين الصفحات) -->
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <!-- زر السابق -->
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-searchQuery="@searchQuery">السابق</a>
+                </li>
+
+                <!-- أرقام الصفحات -->
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(currentPage == i ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchQuery="@searchQuery">@i</a>
+                    </li>
+                }
+
+                <!-- زر التالي -->
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-searchQuery="@searchQuery">التالي</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>
+
+@section Scripts {
+    <style>
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background-color: rgba(255, 255, 255, 0.92); /* خلفية بيضاء شفافة قليلاً لتظهر البطاقات بوضوح فوق خلفية الموقع */
+            backdrop-filter: blur(5px);
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+            }
+
+        .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+    </style>
+}
